@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EMBER — Roblox Executor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0d0d0f;
+            color: #e4e4e7;
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3a3a3f;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a4a50;
+        }
+
+        #menubar {
+            background: rgba(20, 20, 25, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 8px 24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        #menubar .brand {
+            font-weight: 600;
+            font-size: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #ffa94d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        #menubar span {
+            cursor: pointer;
+            color: #a0a0aa;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: background 0.2s, color 0.2s;
+        }
+        #menubar span:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #e4e4e7;
+        }
+        #menubar .right {
+            margin-left: auto;
+            color: #5a5a66;
+            font-size: 12px;
+        }
+
+        #main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            padding: 12px;
+            gap: 12px;
+            background: radial-gradient(ellipse at 20% 50%, rgba(60, 30, 60, 0.15), transparent 70%);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #left {
+            width: 260px;
+            min-width: 200px;
+            background: rgba(22, 22, 28, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            flex-shrink: 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: border-color 0.3s ease;
+        }
+        #left:hover {
+            border-color: rgba(255, 255, 255, 0.07);
+        }
+
+        #left h3 {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6a6a7a;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+
+        #script-list {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow-y: auto;
+            padding: 4px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            min-height: 0;
+        }
+        #script-list div {
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #c0c0cc;
+            border-radius: 6px;
+            transition: background 0.2s, color 0.2s;
+            margin: 2px 0;
+        }
+        #script-list div:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #e4e4e7;
+        }
+        #script-list div.active {
+            background: rgba(74, 158, 255, 0.15);
+            color: #8abfff;
+            border-left: 3px solid #4a9eff;
+            padding-left: 11px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        .btn-row button {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.04);
+            color: #b0b0bc;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 8px 0;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .btn-row button:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e4e4e7;
+            transform: translateY(-1px);
+        }
+        .btn-row button.danger:hover {
+            background: rgba(255, 70, 70, 0.15);
+            color: #ff6b6b;
+            border-color: rgba(255, 70, 70, 0.2);
+        }
+
+        button.primary {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #b0b0bc;
+            padding: 10px 0;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 4px;
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+        button.primary:hover {
+            background: rgba(255, 255, 255, 0.07);
+            transform: translateY(-1px);
+        }
+        button.primary.attach {
+            color: #66d9a0;
+        }
+        button.primary.attach:hover {
+            background: rgba(102, 217, 160, 0.1);
+            border-color: rgba(102, 217, 160, 0.15);
+        }
+        button.primary.execute {
+            color: #6ab0ff;
+        }
+        button.primary.execute:hover {
+            background: rgba(106, 176, 255, 0.1);
+            border-color: rgba(106, 176, 255, 0.15);
+        }
+
+        #attach-status {
+            font-size: 12px;
+            color: #5a5a6a;
+            margin-top: 10px;
+            text-align: center;
+            transition: color 0.4s ease;
+        }
+        #attach-status.attached {
+            color: #66d9a0;
+        }
+        #attach-status.scanning {
+            color: #ffd93d;
+            animation: pulseGlow 1.2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%,
+            100% {
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        #right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        #editor-wrapper {
+            flex: 1;
+            background: rgba(18, 18, 24, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.3s ease;
+            min-height: 0;
+        }
+        #editor-wrapper:hover {
+            border-color: rgba(255, 255, 255, 0.07);
+        }
+        #editor-wrapper .header {
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.25);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 12px;
+            color: #6a6a7a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        #editor-wrapper .header #editor-filename {
+            color: #c0c0cc;
+        }
+        #editor-wrapper .header #editor-cursor {
+            font-size: 11px;
+            color: #4a4a5a;
+        }
+
+        #editor {
+            flex: 1;
+            background: transparent;
+            color: #d4d4dd;
+            font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+            font-size: 13.5px;
+            padding: 16px 18px;
+            border: none;
+            outline: none;
+            resize: none;
+            tab-size: 4;
+            line-height: 1.7;
+            letter-spacing: 0.2px;
+        }
+        #editor::selection {
+            background: rgba(74, 158, 255, 0.25);
+        }
+
+        #console-wrapper {
+            height: 190px;
+            min-height: 100px;
+            background: rgba(18, 18, 24, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.3s ease;
+        }
+        #console-wrapper:hover {
+            border-color: rgba(255, 255, 255, 0.07);
+        }
+        #console-wrapper .header {
+            padding: 6px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 12px;
+            color: #6a6a7a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        #console-wrapper .header button {
+            background: none;
+            border: none;
+            color: #5a5a6a;
+            cursor: pointer;
+            font-size: 12px;
+            transition: color 0.2s;
+            font-family: inherit;
+        }
+        #console-wrapper .header button:hover {
+            color: #c0c0cc;
+        }
+
+        #console {
+            flex: 1;
+            background: transparent;
+            color: #b0b0bc;
+            font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+            font-size: 12.5px;
+            padding: 10px 16px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.6;
+        }
+        #console .log-info {
+            color: #7a7a8a;
+        }
+        #console .log-success {
+            color: #66d9a0;
+        }
+        #console .log-error {
+            color: #ff6b6b;
+        }
+        #console .log-warn {
+            color: #ffd93d;
+        }
+
+        @media (max-width: 768px) {
+            #left {
+                width: 200px;
+                min-width: 150px;
+                padding: 12px;
+            }
+            #console-wrapper {
+                height: 130px;
+                min-height: 80px;
+            }
+            #menubar {
+                padding: 6px 16px;
+                gap: 14px;
+                font-size: 12px;
+            }
+            #menubar .brand {
+                font-size: 13px;
+            }
+        }
+        @media (max-width: 550px) {
+            #main {
+                flex-direction: column;
+                padding: 8px;
+                gap: 8px;
+            }
+            #left {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 6px;
+                padding: 12px;
+                max-height: 220px;
+            }
+            #left h3 {
+                width: 100%;
+                margin-bottom: 4px;
+            }
+            #script-list {
+                flex: 1;
+                min-height: 60px;
+                max-height: 100px;
+                width: 100%;
+                margin-bottom: 6px;
+            }
+            .btn-row {
+                width: 100%;
+            }
+            #left .primary {
+                width: auto;
+                flex: 1;
+                padding: 8px 0;
+            }
+            #attach-status {
+                width: 100%;
+                text-align: left;
+                margin-top: 4px;
+            }
+            #console-wrapper {
+                height: 100px;
+                min-height: 60px;
+            }
+            #editor {
+                font-size: 12px;
+                padding: 12px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="menubar">
+        <span class="brand">✦ EMBER</span>
+        <span>File</span>
+        <span>Tools</span>
+        <span>Help</span>
+        <span class="right">v1.0</span>
+    </div>
+
+    <div id="main">
+
+        <div id="left">
+            <h3>📁 Script Library</h3>
+            <div id="script-list"></div>
+
+            <div class="btn-row">
+                <button id="btn-new">+ New</button>
+                <button id="btn-save">💾 Save</button>
+                <button id="btn-delete" class="danger">✕</button>
+            </div>
+
+            <button id="btn-attach" class="primary attach">🔗 Attach</button>
+            <button id="btn-execute" class="primary execute">▶ Execute</button>
+            <div id="attach-status">⚪ Not attached</div>
+        </div>
+
+        <div id="right">
+
+            <div id="editor-wrapper">
+                <div class="header">
+                    <span id="editor-filename">untitled.lua</span>
+                    <span id="editor-cursor">Ln 1, Col 1</span>
+                </div>
+                <textarea id="editor" spellcheck="false"></textarea>
+            </div>
+
+            <div id="console-wrapper">
+                <div class="header">
+                    <span>📟 Output Console</span>
+                    <button id="btn-clear-console">Clear</button>
+                </div>
+                <div id="console"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let scriptLibrary = [];
+        let currentScriptName = null;
+        let isAttached = false;
+
+        const defaultScripts = [{
+            name: "Infinite Jump",
+            code: `local player = game.Players.LocalPlayer\nlocal char = player.Character\nlocal hrp = char and char:FindFirstChild("HumanoidRootPart")\nif hrp then\n    hrp.Velocity = Vector3.new(0, 50, 0)\nend`
+        }, {
+            name: "ESP",
+            code: `for _, player in ipairs(game.Players:GetPlayers()) do\n    if player ~= game.Players.LocalPlayer then\n        local char = player.Character\n        if char then\n            local highlight = Instance.new("Highlight")\n            highlight.Parent = char\n            highlight.FillColor = Color3.new(1, 0, 0)\n        end\n    end\nend`
+        }, {
+            name: "Infinite Yield",
+            code: `loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()`
+        }];
+
+        const scriptListEl = document.getElementById('script-list');
+        const editor = document.getElementById('editor');
+        const consoleEl = document.getElementById('console');
+        const editorFilename = document.getElementById('editor-filename');
+        const editorCursor = document.getElementById('editor-cursor');
+        const attachStatus = document.getElementById('attach-status');
+
+        function log(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-${type}`;
+            entry.textContent = message;
+            consoleEl.appendChild(entry);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function clearConsole() {
+            consoleEl.innerHTML = '';
+        }
+
+        function updateCursorInfo() {
+            const lines = editor.value.substr(0, editor.selectionStart).split('\n');
+            const line = lines.length;
+            const col = lines[lines.length - 1].length + 1;
+            editorCursor.textContent = `Ln ${line}, Col ${col}`;
+        }
+
+        function loadLibrary() {
+            const saved = localStorage.getItem('ember_scripts');
+            if (saved) {
+                try {
+                    scriptLibrary = JSON.parse(saved);
+                    return;
+                } catch (e) {}
+            }
+            scriptLibrary = JSON.parse(JSON.stringify(defaultScripts));
+            saveLibrary();
+        }
+
+        function saveLibrary() {
+            localStorage.setItem('ember_scripts', JSON.stringify(scriptLibrary));
+        }
+
+        function renderLibrary() {
+            scriptListEl.innerHTML = '';
+            scriptLibrary.forEach((s, idx) => {
+                const div = document.createElement('div');
+                div.textContent = s.name;
+                if (s.name === currentScriptName) {
+                    div.classList.add('active');
+                }
+                div.addEventListener('click', () => selectScript(idx));
+                scriptListEl.appendChild(div);
+            });
+        }
+
+        function selectScript(index) {
+            const script = scriptLibrary[index];
+            if (!script) return;
+            currentScriptName = script.name;
+            editor.value = script.code || '';
+            editorFilename.textContent = script.name + '.lua';
+            renderLibrary();
+            updateCursorInfo();
+            log(`[i] Loaded: ${script.name}`, 'info');
+        }
+
+        function newScript() {
+            const name = prompt('Enter script name:');
+            if (!name || !name.trim()) return;
+            const trimmed = name.trim();
+            scriptLibrary.push({ name: trimmed, code: '' });
+            saveLibrary();
+            renderLibrary();
+            const idx = scriptLibrary.length - 1;
+            selectScript(idx);
+            log(`[+] New script created: ${trimmed}`, 'success');
+        }
+
+        function saveScript() {
+            if (!currentScriptName) {
+                log('[!] No script selected to save.', 'warn');
+                return;
+            }
+            const script = scriptLibrary.find(s => s.name === currentScriptName);
+            if (script) {
+                script.code = editor.value;
+                saveLibrary();
+                log(`[+] Saved: ${currentScriptName}`, 'success');
+            } else {
+                log('[!] Script not found in library.', 'error');
+            }
+        }
+
+        function deleteScript() {
+            if (!currentScriptName) {
+                log('[!] No script selected.', 'warn');
+                return;
+            }
+            if (!confirm(`Delete "${currentScriptName}"?`)) return;
+            scriptLibrary = scriptLibrary.filter(s => s.name !== currentScriptName);
+            saveLibrary();
+            currentScriptName = null;
+            editor.value = '';
+            editorFilename.textContent = 'untitled.lua';
+            renderLibrary();
+            log('[+] Deleted script.', 'success');
+        }
+
+        function attach() {
+            attachStatus.textContent = '🔍 Scanning...';
+            attachStatus.className = 'scanning';
+
+            setTimeout(() => {
+                isAttached = true;
+                attachStatus.textContent = '✅ Attached to Roblox';
+                attachStatus.className = 'attached';
+                log('[+] Attached to Roblox successfully.', 'success');
+            }, 600);
+        }
+
+        function executeScript() {
+            const code = editor.value.trim();
+            if (!code) {
+                log('[!] Script is empty.', 'warn');
+                return;
+            }
+            if (!isAttached) {
+                log('[!] Not attached to Roblox. Please attach first.', 'warn');
+                return;
+            }
+            log('[*] Executing script...', 'info');
+            setTimeout(() => {
+                log('[+] Script executed successfully.', 'success');
+            }, 400);
+        }
+
+        document.getElementById('btn-new').addEventListener('click', newScript);
+        document.getElementById('btn-save').addEventListener('click', saveScript);
+        document.getElementById('btn-delete').addEventListener('click', deleteScript);
+        document.getElementById('btn-attach').addEventListener('click', attach);
+        document.getElementById('btn-execute').addEventListener('click', executeScript);
+        document.getElementById('btn-clear-console').addEventListener('click', clearConsole);
+
+        editor.addEventListener('input', updateCursorInfo);
+        editor.addEventListener('click', updateCursorInfo);
+        editor.addEventListener('keyup', updateCursorInfo);
+
+        editor.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                executeScript();
+            }
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveScript();
+            }
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                newScript();
+            }
+        });
+
+        loadLibrary();
+        renderLibrary();
+        if (scriptLibrary.length > 0) {
+            selectScript(0);
+        }
+        log('[i] Ember UI ready.', 'info');
+        log('[i] Ctrl+Enter to execute · Ctrl+S to save · Ctrl+N for new', 'info');
+    </script>
+
+</body>
+</html>
