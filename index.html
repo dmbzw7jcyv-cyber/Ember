@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ember — Script Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0b0b0e;
+            --surface: #131316;
+            --surface-2: #1a1a20;
+            --surface-3: #222228;
+            --border: #26262c;
+            --border-light: #33333a;
+            --text: #f5f5f7;
+            --text-secondary: #a0a0a8;
+            --text-muted: #6e6e78;
+            --primary: #ff6b00;
+            --primary-hover: #ff8533;
+            --secondary: #ff1744;
+            --accent-gradient: linear-gradient(135deg, #ff6b00, #ff1744);
+            --success: #00c853;
+            --warning: #ffab00;
+            --danger: #ff1744;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+            --font-sans: 'Inter', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .galaxy-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background-image: url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.15;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background: linear-gradient(180deg, rgba(11,11,14,0.85) 0%, rgba(11,11,14,0.93) 100%);
+        }
+
+        .orange-tint {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            background: rgba(255, 107, 0, 0.03);
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-light);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(11, 11, 14, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            text-decoration: none;
+            user-select: none;
+        }
+
+        .logo-star {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+
+        .logo-star svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .logo-text {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav {
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+        }
+
+        .nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 0.9rem;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            letter-spacing: 0.01em;
+        }
+
+        .nav a:hover {
+            color: var(--text);
+            background: var(--surface-2);
+        }
+
+        .nav a.active {
+            color: var(--primary);
+            background: rgba(255, 107, 0, 0.08);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 4rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0 3rem;
+            position: relative;
+        }
+
+        .hero-star {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1.5rem;
+            opacity: 0.9;
+        }
+
+        .hero-star svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 20px rgba(255, 107, 0, 0.4));
+        }
+
+        .hero h1 {
+            font-size: 3.25rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.75rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 560px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+
+        .hero-divider {
+            width: 60px;
+            height: 2px;
+            background: var(--accent-gradient);
+            margin: 1.5rem auto 0;
+            border-radius: 2px;
+            opacity: 0.6;
+        }
+
+        .discord-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--accent-gradient);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.8rem 1.75rem;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            transition: var(--transition);
+            margin-top: 1.5rem;
+            letter-spacing: 0.01em;
+        }
+
+        .discord-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 107, 0, 0.35);
+        }
+
+        .discord-btn svg {
+            flex-shrink: 0;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .tool-card {
+            background: rgba(19, 19, 22, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .tool-card:hover {
+            border-color: var(--border-light);
+            background: rgba(26, 26, 32, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .tool-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--text);
+        }
+
+        .tool-card .version-tag {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            background: var(--surface-3);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            letter-spacing: 0.02em;
+        }
+
+        .tool-card p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        .tool-card .status-indicator {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .status-indicator.stable {
+            background: var(--success);
+            box-shadow: 0 0 6px rgba(0, 200, 83, 0.5);
+        }
+
+        .status-indicator.beta {
+            background: var(--warning);
+            box-shadow: 0 0 6px rgba(255, 171, 0, 0.5);
+        }
+
+        .status-indicator.coming {
+            background: var(--text-muted);
+        }
+
+        .status-text {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .tool-detail {
+            display: none;
+            margin-top: 1.5rem;
+            animation: fadeIn 250ms ease;
+        }
+
+        .tool-detail.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tool-detail-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tool-detail-header h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text);
+        }
+
+        .tool-detail-header .meta-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tool-detail-header .meta-tag {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: rgba(26, 26, 32, 0.9);
+            border: 1px solid var(--border);
+            padding: 0.3rem 0.7rem;
+            border-radius: 4px;
+        }
+
+        .detail-section {
+            margin-bottom: 2rem;
+        }
+
+        .detail-section h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.5rem;
+            list-style: none;
+        }
+
+        .feature-grid li {
+            background: rgba(19, 19, 22, 0.85);
+            border: 1px solid var(--border);
+            padding: 0.6rem 0.9rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .feature-grid li::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .requirements-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .requirements-list li {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .requirements-list li::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--border-light);
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .code-block {
+            background: rgba(13, 13, 17, 0.9);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 1rem 1.25rem;
+            margin: 0.75rem 0;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: #c8c8d0;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        .code-block .prompt {
+            color: var(--primary);
+            user-select: none;
+        }
+
+        .code-block .comment {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--accent-gradient);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-sans);
+            letter-spacing: 0.01em;
+            margin-top: 0.5rem;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(255, 107, 0, 0.35);
+        }
+
+        .download-btn .arrow {
+            font-size: 1.1rem;
+            transition: transform 150ms ease;
+        }
+
+        .download-btn:hover .arrow {
+            transform: translateX(3px);
+        }
+
+        .warning-box {
+            background: rgba(255, 23, 68, 0.06);
+            border: 1px solid rgba(255, 23, 68, 0.25);
+            border-radius: var(--radius-sm);
+            padding: 1rem 1.25rem;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #ff8a9e;
+            line-height: 1.5;
+        }
+
+        .warning-box strong {
+            color: #ffb3c1;
+            font-weight: 600;
+        }
+
+        .legal-content {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+
+        .legal-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .legal-content p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .legal-content ol {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            padding-left: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .legal-content ol li::marker {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .contact-email {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+            text-decoration: none;
+            transition: color var(--transition);
+        }
+
+        .contact-email:hover {
+            color: var(--primary-hover);
+        }
+
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .footer .footer-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer .footer-logo .logo-star {
+            width: 16px;
+            height: 16px;
+        }
+
+        .footer .footer-logo span {
+            font-weight: 700;
+            color: var(--text-secondary);
+            letter-spacing: -0.01em;
+        }
+
+        .footer p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 1rem;
+            }
+            .nav a {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8rem;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .container {
+                padding: 2rem 1rem 3rem;
+            }
+            .tool-detail-header {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="galaxy-bg"></div>
+    <div class="overlay"></div>
+    <div class="orange-tint"></div>
+
+    <svg width="0" height="0" style="position:absolute;">
+        <defs>
+            <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ff6b00"/>
+                <stop offset="100%" stop-color="#ff1744"/>
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <div class="content-wrapper">
+
+        <header class="header">
+            <a class="logo" href="#" onclick="showHome(); return false;">
+                <span class="logo-star">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M12 0 L13.8 10.2 L24 12 L13.8 13.8 L12 24 L10.2 13.8 L0 12 L10.2 10.2 Z" fill="url(#starGradient)"/>
+                    </svg>
+                </span>
+                <span class="logo-text">Ember</span>
+            </a>
+            <nav class="nav">
+                <a href="#" class="active" data-page="home" onclick="showHome(); return false;">Home</a>
+                <a href="#" data-page="tools" onclick="showTools(); return false;">Tools</a>
+                <a href="#" data-page="disclaimer" onclick="showDisclaimer(); return false;">Disclaimer</a>
+                <a href="#" data-page="contact" onclick="showContact(); return false;">Contact</a>
+            </nav>
+        </header>
+
+        <div class="container">
+
+            <div id="page-home" class="page">
+                <div class="hero">
+                    <div class="hero-star">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M12 0 L13.8 10.2 L24 12 L13.8 13.8 L12 24 L10.2 13.8 L0 12 L10.2 10.2 Z" fill="url(#starGradient)"/>
+                        </svg>
+                    </div>
+                    <h1>Ember</h1>
+                    <p>Game enhancement tools and script hub. Built for research, learning, and single-player experimentation.</p>
+                    <div class="hero-divider"></div>
+                    <a href="https://discord.gg/mn9ZTX7du" class="discord-btn" target="_blank" rel="noopener">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/>
+                        </svg>
+                        Join Discord
+                    </a>
+                </div>
+
+                <div class="tools-grid">
+                    <a class="tool-card" href="#" onclick="showTool('maember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>MaEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Auto-green catches and hit sticks for Madden 26/27.</p>
+                        <div style="margin-top:0.75rem;">
+                            <span class="status-indicator stable"></span>
+                            <span class="status-text">Stable</span>
+                        </div>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('mlbshember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>MLBShEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Auto-perfect swing and PCI placement for MLB The Show.</p>
+                        <div style="margin-top:0.75rem;">
+                            <span class="status-indicator stable"></span>
+                            <span class="status-text">Stable</span>
+                        </div>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('arcember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>ArcEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>ESP, combat automation, and movement mods for Arc Raiders.</p>
+                        <div style="margin-top:0.75rem;">
+                            <span class="status-indicator stable"></span>
+                            <span class="status-text">Stable</span>
+                        </div>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('siegeember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>SiegeEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Soft walls, aimbot, and health mods for Rainbow Six Siege.</p>
+                        <div style="margin-top:0.75rem;">
+                            <span class="status-indicator stable"></span>
+                            <span class="status-text">Stable</span>
+                        </div>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('nbaember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>NBAEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Green shots, defensive assists, and stamina for NBA 2K.</p>
+                        <div style="margin-top:0.75rem;">
+                            <span class="status-indicator stable"></span>
+                            <span class="status-text">Stable</span>
+                        </div>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('codember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>CoDEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Aimbot, ESP, no recoil, and unlock tools for Call of Duty.</p>
+                        <div style="margin-top:0.75rem;">
+                            <span class="status-indicator stable"></span>
+                            <span class="status-text">Stable</span>
+                        </div>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('emberrdr2'); return false;">
+                        <div class="tool-card-header">
+                            <h3>EmberRDR2</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>ESP, aimbot, player mods, and world control for RDR2.</p>
+                        <div style="margin-top:0.75rem;">
+                            <span class="status-indicator stable"></span>
+                            <span class="status-text">Stable</span>
+                        </div>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('roember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>RoEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Roblox script executor with custom UI and bridge.</p>
+                        <div style="margin-top:0.75rem;">
+                            <span class="status-indicator stable"></span>
+                            <span class="status-text">Stable</span>
+                        </div>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('embernite'); return false;">
+                        <div class="tool-card-header">
+                            <h3>EmberNite</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Fortnite suite with driver, overlay, and advanced features.</p>
+                        <div style="margin-top:0.75rem;">
+                            <span class="status-indicator stable"></span>
+                            <span class="status-text">Stable</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div id="page-tools" class="page" style="display:none;">
+                <h2 style="font-size:1.5rem; font-weight:700; margin-bottom:1rem; color:var(--text);">All Tools</h2>
+                <div class="tools-grid">
+                    <a class="tool-card" href="#" onclick="showTool('maember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>MaEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Auto-green catches and hit sticks for Madden 26/27.</p>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('mlbshember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>MLBShEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Auto-perfect swing and PCI placement for MLB The Show.</p>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('arcember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>ArcEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>ESP, combat automation, and movement mods for Arc Raiders.</p>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('siegeember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>SiegeEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Soft walls, aimbot, and health mods for Rainbow Six Siege.</p>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('nbaember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>NBAEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Green shots, defensive assists, and stamina for NBA 2K.</p>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('codember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>CoDEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Aimbot, ESP, no recoil, and unlock tools for Call of Duty.</p>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('emberrdr2'); return false;">
+                        <div class="tool-card-header">
+                            <h3>EmberRDR2</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>ESP, aimbot, player mods, and world control for RDR2.</p>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('roember'); return false;">
+                        <div class="tool-card-header">
+                            <h3>RoEmber</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Roblox script executor with custom UI and bridge.</p>
+                    </a>
+                    <a class="tool-card" href="#" onclick="showTool('embernite'); return false;">
+                        <div class="tool-card-header">
+                            <h3>EmberNite</h3>
+                            <span class="version-tag">v1.0</span>
+                        </div>
+                        <p>Fortnite suite with driver, overlay, and advanced features.</p>
+                    </a>
+                </div>
+            </div>
+
+            <div id="page-disclaimer" class="page" style="display:none;">
+                <div class="legal-content">
+                    <h2>Disclaimer</h2>
+                    <p>All tools and scripts hosted on this site are provided strictly for <strong>educational and research purposes</strong>. They are intended to demonstrate programming concepts, memory management techniques, and game mechanics analysis.</p>
+                    <p>By downloading or using any content from this site, you acknowledge and agree to the following:</p>
+                    <ol>
+                        <li>You will only use these tools on games or software that you own.</li>
+                        <li>You will not use these tools in online multiplayer environments where they conflict with the game's Terms of Service.</li>
+                        <li>You will not use these tools to harm other players, gain unfair competitive advantages, or disrupt game services.</li>
+                        <li>You understand that using mods, trainers, or third-party tools may result in account bans or other consequences from game developers.</li>
+                        <li>You are solely responsible for your actions and any consequences that arise from them.</li>
+                        <li>The site owner and contributors are not liable for any damages, bans, account losses, or legal issues resulting from the use of these tools.</li>
+                        <li>These tools are intended for learning about software internals, memory management, and game engine mechanics.</li>
+                    </ol>
+                    <p>If you represent a game developer or publisher and believe that any content on this site violates your rights, please reach out via the <a href="#" onclick="showContact(); return false;" style="color:var(--primary);">contact page</a>. We will respond to all legitimate DMCA requests within 48 hours.</p>
+                </div>
+            </div>
+
+            <div id="page-contact" class="page" style="display:none;">
+                <div class="legal-content">
+                    <h2>Contact</h2>
+                    <p>For removal requests, feedback, or general inquiries, email us at:</p>
+                    <p style="margin:1rem 0;">
+                        <a class="contact-email" href="mailto:flotsam_laughs_8p@icloud.com?subject=Ember%20Hub%20Contact">flotsam_laughs_8p@icloud.com</a>
+                    </p>
+                    <p style="font-size:0.85rem; color:var(--text-muted);">All legitimate DMCA requests will be reviewed and responded to within 48 hours.</p>
+                </div>
+            </div>
+
+            <!-- Tool detail sections -->
+            <!-- MaEmber -->
+            <div id="tool-maember" class="tool-detail">
+                <div class="tool-detail-header">
+                    <h2>MaEmber</h2>
+                    <div class="meta-tags">
+                        <span class="meta-tag">v1.0</span>
+                        <span class="meta-tag">Madden 26/27</span>
+                        <span class="meta-tag">Windows</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h3>Features</h3>
+                    <ul class="feature-grid">
+                        <li>Auto-green catch meter</li>
+                        <li>Auto hit sticks</li>
+                        <li>Offset scanner</li>
+                        <li>Adjustable timing</li>
+                        <li>Aggressive mode</li>
+                        <li>Performance monitor</li>
+                        <li>Settings persistence</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Requirements</h3>
+                    <ul class="requirements-list">
+                        <li>Windows 10 / 11</li>
+                        <li>Python 3.8 or newer</li>
+                        <li>Madden 26 or 27 installed</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Installation</h3>
+                    <div class="code-block"><span class="comment"># Install dependencies</span>
+pip install pymem psutil keyboard mouse</div>
+                    <div class="code-block"><span class="comment"># Run</span>
+python maember.py</div>
+                </div>
+                <a href="/downloads/maember.py" class="download-btn" download>Download MaEmber.py <span class="arrow">→</span></a>
+                <div class="warning-box">
+                    <strong>Notice:</strong> This tool is intended for educational and single-player use only.
+                </div>
+            </div>
+
+            <!-- MLBShEmber -->
+            <div id="tool-mlbshember" class="tool-detail">
+                <div class="tool-detail-header">
+                    <h2>MLBShEmber</h2>
+                    <div class="meta-tags">
+                        <span class="meta-tag">v1.0</span>
+                        <span class="meta-tag">MLB The Show</span>
+                        <span class="meta-tag">Windows</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h3>Features</h3>
+                    <ul class="feature-grid">
+                        <li>Auto-perfect swing timing</li>
+                        <li>PCI auto-placement</li>
+                        <li>Pitch type detection</li>
+                        <li>Auto base stealing</li>
+                        <li>Auto bunt</li>
+                        <li>Adjustable timing tolerance</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Requirements</h3>
+                    <ul class="requirements-list">
+                        <li>Windows 10 / 11</li>
+                        <li>Python 3.8 or newer</li>
+                        <li>MLB The Show installed</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Installation</h3>
+                    <div class="code-block"><span class="comment"># Install dependencies</span>
+pip install pymem psutil keyboard mouse opencv-python mss numpy</div>
+                    <div class="code-block"><span class="comment"># Run</span>
+python mlbshember.py</div>
+                </div>
+                <a href="/downloads/mlbshember.py" class="download-btn" download>Download MLBShEmber.py <span class="arrow">→</span></a>
+                <div class="warning-box">
+                    <strong>Notice:</strong> This tool is intended for educational and single-player use only.
+                </div>
+            </div>
+
+            <!-- ArcEmber -->
+            <div id="tool-arcember" class="tool-detail">
+                <div class="tool-detail-header">
+                    <h2>ArcEmber</h2>
+                    <div class="meta-tags">
+                        <span class="meta-tag">v1.0</span>
+                        <span class="meta-tag">Arc Raiders</span>
+                        <span class="meta-tag">Windows</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h3>Features</h3>
+                    <ul class="feature-grid">
+                        <li>Player and loot ESP</li>
+                        <li>Aimbot with FOV control</li>
+                        <li>Anti-recoil</li>
+                        <li>Infinite stamina</li>
+                        <li>Infinite health</li>
+                        <li>Fast loot</li>
+                        <li>Large loot area</li>
+                        <li>Flying mode</li>
+                        <li>God mode</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Requirements</h3>
+                    <ul class="requirements-list">
+                        <li>Windows 10 / 11</li>
+                        <li>Python 3.8 or newer</li>
+                        <li>Arc Raiders installed</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Installation</h3>
+                    <div class="code-block"><span class="comment"># Install dependencies</span>
+pip install pymem psutil keyboard mouse opencv-python mss numpy pywin32</div>
+                    <div class="code-block"><span class="comment"># Run as Administrator</span>
+python arcember.py</div>
+                </div>
+                <a href="/downloads/arcember.py" class="download-btn" download>Download ArcEmber.py <span class="arrow">→</span></a>
+                <div class="warning-box">
+                    <strong>Notice:</strong> This tool is intended for educational and private-server use only.
+                </div>
+            </div>
+
+            <!-- SiegeEmber -->
+            <div id="tool-siegeember" class="tool-detail">
+                <div class="tool-detail-header">
+                    <h2>SiegeEmber</h2>
+                    <div class="meta-tags">
+                        <span class="meta-tag">v1.0</span>
+                        <span class="meta-tag">Rainbow Six Siege</span>
+                        <span class="meta-tag">Windows</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h3>Features</h3>
+                    <ul class="feature-grid">
+                        <li>Soft walls / player ESP</li>
+                        <li>Aimbot with bone targeting</li>
+                        <li>Anti-recoil</li>
+                        <li>No spread</li>
+                        <li>Infinite or extra health</li>
+                        <li>Infinite armor</li>
+                        <li>Auto heal</li>
+                        <li>God mode</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Requirements</h3>
+                    <ul class="requirements-list">
+                        <li>Windows 10 / 11</li>
+                        <li>Python 3.8 or newer</li>
+                        <li>Rainbow Six Siege installed</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Installation</h3>
+                    <div class="code-block"><span class="comment"># Install dependencies</span>
+pip install pymem psutil keyboard mouse opencv-python mss numpy pywin32</div>
+                    <div class="code-block"><span class="comment"># Run as Administrator</span>
+python siegeember.py</div>
+                </div>
+                <a href="/downloads/siegeember.py" class="download-btn" download>Download SiegeEmber.py <span class="arrow">→</span></a>
+                <div class="warning-box">
+                    <strong>Notice:</strong> This tool is intended for educational and private-server use only.
+                </div>
+            </div>
+
+            <!-- NBAEmber -->
+            <div id="tool-nbaember" class="tool-detail">
+                <div class="tool-detail-header">
+                    <h2>NBAEmber</h2>
+                    <div class="meta-tags">
+                        <span class="meta-tag">v1.0</span>
+                        <span class="meta-tag">NBA 2K</span>
+                        <span class="meta-tag">Windows</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h3>Features</h3>
+                    <ul class="feature-grid">
+                        <li>Auto-green shot timing</li>
+                        <li>Auto steal</li>
+                        <li>Auto block</li>
+                        <li>Auto rebound</li>
+                        <li>Infinite energy</li>
+                        <li>Infinite takeover</li>
+                        <li>Stats boost</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Requirements</h3>
+                    <ul class="requirements-list">
+                        <li>Windows 10 / 11</li>
+                        <li>Python 3.8 or newer</li>
+                        <li>NBA 2K installed</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Installation</h3>
+                    <div class="code-block"><span class="comment"># Install dependencies</span>
+pip install pymem psutil keyboard mouse</div>
+                    <div class="code-block"><span class="comment"># Run</span>
+python nbaember.py</div>
+                </div>
+                <a href="/downloads/nbaember.py" class="download-btn" download>Download NBAEmber.py <span class="arrow">→</span></a>
+                <div class="warning-box">
+                    <strong>Notice:</strong> This tool is intended for educational and single-player use only.
+                </div>
+            </div>
+
+            <!-- CoDEmber -->
+            <div id="tool-codember" class="tool-detail">
+                <div class="tool-detail-header">
+                    <h2>CoDEmber</h2>
+                    <div class="meta-tags">
+                        <span class="meta-tag">v1.0</span>
+                        <span class="meta-tag">Call of Duty</span>
+                        <span class="meta-tag">Windows</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h3>Features</h3>
+                    <ul class="feature-grid">
+                        <li>Aimbot with bone targeting</li>
+                        <li>Silent aim</li>
+                        <li>Player ESP</li>
+                        <li>Health bars and distance</li>
+                        <li>No recoil</li>
+                        <li>Unlock all</li>
+                        <li>Max prestige</li>
+                        <li>Infinite XP</li>
+                        <li>Radar</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Requirements</h3>
+                    <ul class="requirements-list">
+                        <li>Windows 10 / 11</li>
+                        <li>Python 3.8 or newer</li>
+                        <li>Call of Duty installed</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Installation</h3>
+                    <div class="code-block"><span class="comment"># Install dependencies</span>
+pip install pymem psutil keyboard mouse opencv-python mss numpy pywin32</div>
+                    <div class="code-block"><span class="comment"># Run as Administrator</span>
+python codember.py</div>
+                </div>
+                <a href="/downloads/codember.py" class="download-btn" download>Download CoDEmber.py <span class="arrow">→</span></a>
+                <div class="warning-box">
+                    <strong>Notice:</strong> This tool is intended for educational and private-server use only.
+                </div>
+            </div>
+
+            <!-- EmberRDR2 -->
+            <div id="tool-emberrdr2" class="tool-detail">
+                <div class="tool-detail-header">
+                    <h2>EmberRDR2</h2>
+                    <div class="meta-tags">
+                        <span class="meta-tag">v1.0</span>
+                        <span class="meta-tag">Red Dead Redemption 2</span>
+                        <span class="meta-tag">Windows</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h3>Features</h3>
+                    <ul class="feature-grid">
+                        <li>Player, NPC, and animal ESP</li>
+                        <li>Aimbot with bone targeting</li>
+                        <li>Anti-recoil</li>
+                        <li>No spread</li>
+                        <li>Triggerbot</li>
+                        <li>Infinite health</li>
+                        <li>Infinite stamina</li>
+                        <li>Infinite dead eye</li>
+                        <li>Infinite horse health</li>
+                        <li>No wanted level</li>
+                        <li>God mode</li>
+                        <li>Infinite money</li>
+                        <li>Teleport waypoints</li>
+                        <li>Weather control</li>
+                        <li>Time of day control</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Requirements</h3>
+                    <ul class="requirements-list">
+                        <li>Windows 10 / 11</li>
+                        <li>Python 3.8 or newer</li>
+                        <li>Red Dead Redemption 2 installed</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Installation</h3>
+                    <div class="code-block"><span class="comment"># Install dependencies</span>
+pip install pymem psutil keyboard mouse</div>
+                    <div class="code-block"><span class="comment"># Run</span>
+python emberrdr2.py</div>
+                </div>
+                <a href="/downloads/emberrdr2.py" class="download-btn" download>Download EmberRDR2.py <span class="arrow">→</span></a>
+                <div class="warning-box">
+                    <strong>Notice:</strong> This tool is intended for educational and single-player use only.
+                </div>
+            </div>
+
+            <!-- RoEmber -->
+            <div id="tool-roember" class="tool-detail">
+                <div class="tool-detail-header">
+                    <h2>RoEmber</h2>
+                    <div class="meta-tags">
+                        <span class="meta-tag">v1.0</span>
+                        <span class="meta-tag">Roblox</span>
+                        <span class="meta-tag">Windows</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h3>Features</h3>
+                    <ul class="feature-grid">
+                        <li>Script executor UI</li>
+                        <li>Script library with save/load</li>
+                        <li>Named pipe bridge</li>
+                        <li>DLL injection</li>
+                        <li>Lua execution framework</li>
+                        <li>Console output</li>
+                        <li>Electron packaging</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Requirements</h3>
+                    <ul class="requirements-list">
+                        <li>Windows 10 / 11</li>
+                        <li>Node.js 18+</li>
+                        <li>Roblox installed</li>
+                        <li>Visual Studio Build Tools</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Installation</h3>
+                    <div class="code-block"><span class="comment"># Install dependencies</span>
+npm install</div>
+                    <div class="code-block"><span class="comment"># Build C++ components</span>
+build.bat</div>
+                    <div class="code-block"><span class="comment"># Run bridge</span>
+npm start</div>
+                </div>
+                <div class="detail-section">
+                    <h3>Downloads</h3>
+                    <a href="/downloads/roember.html" class="download-btn" download>RoEmber UI <span class="arrow">→</span></a>
+                    <a href="/downloads/bridge.js" class="download-btn" download style="margin-left:0.5rem;">Bridge <span class="arrow">→</span></a>
+                    <a href="/downloads/ember_injector.cpp" class="download-btn" download style="margin-left:0.5rem;">Injector <span class="arrow">→</span></a>
+                    <a href="/downloads/payload.cpp" class="download-btn" download style="margin-left:0.5rem;">Payload <span class="arrow">→</span></a>
+                    <a href="/downloads/package.json" class="download-btn" download style="margin-left:0.5rem;">package.json <span class="arrow">→</span></a>
+                    <a href="/downloads/build.bat" class="download-btn" download style="margin-left:0.5rem;">build.bat <span class="arrow">→</span></a>
+                </div>
+                <div class="warning-box">
+                    <strong>Notice:</strong> Roblox executors may violate Roblox's Terms of Service.
+                </div>
+            </div>
+
+            <!-- EmberNite -->
+            <div id="tool-embernite" class="tool-detail">
+                <div class="tool-detail-header">
+                    <h2>EmberNite</h2>
+                    <div class="meta-tags">
+                        <span class="meta-tag">v1.0</span>
+                        <span class="meta-tag">Fortnite</span>
+                        <span class="meta-tag">Windows</span>
+                    </div>
+                </div>
+                <div class="detail-section">
+                    <h3>Features</h3>
+                    <ul class="feature-grid">
+                        <li>Kernel driver memory read/write</li>
+                        <li>Process hiding</li>
+                        <li>ESP with boxes and skeleton</li>
+                        <li>Loot ESP with rarity colors</li>
+                        <li>Aimbot with FOV and smoothing</li>
+                        <li>Triggerbot</li>
+                        <li>Prediction</li>
+                        <li>Chams</li>
+                        <li>No fog</li>
+                        <li>Fly and no clip</li>
+                        <li>Speed hack</li>
+                        <li>Teleport</li>
+                        <li>Instant edit</li>
+                        <li>Auto mantle</li>
+                        <li>Quick build</li>
+                        <li>Auto drop</li>
+                        <li>Auto pickup filter</li>
+                        <li>Streamer mode</li>
+                        <li>Config save/load</li>
+                        <li>Anti-detection</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Requirements</h3>
+                    <ul class="requirements-list">
+                        <li>Windows 10 / 11 x64</li>
+                        <li>WDK (Windows Driver Kit)</li>
+                        <li>Visual Studio 2022</li>
+                        <li>Fortnite installed</li>
+                        <li>Test mode enabled for driver</li>
+                    </ul>
+                </div>
+                <div class="detail-section">
+                    <h3>Installation</h3>
+                    <div class="code-block"><span class="comment"># Build driver with WDK</span>
+<span class="comment"># Compile ember_driver.cpp as kernel driver</span></div>
+                    <div class="code-block"><span class="comment"># Build usermode with MSVC</span>
+cl /EHsc /Fe:embernite.exe embernite_usermode.cpp embernite_scripts.cpp embernite_advanced.cpp embernite_main.cpp</div>
+                    <div class="code-block"><span class="comment"># Load driver</span>
+sc create EmberNite type= kernel binPath= C:\path\to\ember_driver.sys
+sc start EmberNite</div>
+                </div>
+                <div class="detail-section">
+                    <h3>Downloads</h3>
+                    <a href="/downloads/ember_driver.cpp" class="download-btn" download>Driver <span class="arrow">→</span></a>
+                    <a href="/downloads/embernite_usermode.cpp" class="download-btn" download style="margin-left:0.5rem;">Usermode <span class="arrow">→</span></a>
+                    <a href="/downloads/embernite_scripts.cpp" class="download-btn" download style="margin-left:0.5rem;">Scripts <span class="arrow">→</span></a>
+                    <a href="/downloads/embernite_advanced.cpp" class="download-btn" download style="margin-left:0.5rem;">Advanced <span class="arrow">→</span></a>
+                    <a href="/downloads/embernite_main.cpp" class="download-btn" download style="margin-left:0.5rem;">Main <span class="arrow">→</span></a>
+                </div>
+                <div class="warning-box">
+                    <strong>Notice:</strong> This tool is intended for educational and private-server use only. Using it in public online modes may violate the game's Terms of Service and result in permanent bans.
+                </div>
+            </div>
+
+        </div>
+
+        <footer class="footer">
+            <div class="footer-logo">
+                <span class="logo-star">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M12 0 L13.8 10.2 L24 12 L13.8 13.8 L12 24 L10.2 13.8 L0 12 L10.2 10.2 Z" fill="url(#starGradient)"/>
+                    </svg>
+                </span>
+                <span>Ember</span>
+            </div>
+            <p>For educational and research purposes only. All trademarks belong to their respective owners.</p>
+            <p style="margin-top:0.25rem;">Not affiliated with any game developer or publisher.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        function showHome() {
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            document.getElementById('page-home').style.display = 'block';
+            document.querySelectorAll('.tool-detail').forEach(t => t.classList.remove('active'));
+            setActiveNav('home');
+            window.scrollTo(0, 0);
+        }
+
+        function showTools() {
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            document.getElementById('page-tools').style.display = 'block';
+            document.querySelectorAll('.tool-detail').forEach(t => t.classList.remove('active'));
+            setActiveNav('tools');
+            window.scrollTo(0, 0);
+        }
+
+        function showDisclaimer() {
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            document.getElementById('page-disclaimer').style.display = 'block';
+            document.querySelectorAll('.tool-detail').forEach(t => t.classList.remove('active'));
+            setActiveNav('disclaimer');
+            window.scrollTo(0, 0);
+        }
+
+        function showContact() {
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            document.getElementById('page-contact').style.display = 'block';
+            document.querySelectorAll('.tool-detail').forEach(t => t.classList.remove('active'));
+            setActiveNav('contact');
+            window.scrollTo(0, 0);
+        }
+
+        function showTool(toolId) {
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.tool-detail').forEach(t => t.classList.remove('active'));
+            const detail = document.getElementById('tool-' + toolId);
+            if (detail) {
+                detail.classList.add('active');
+                detail.scrollIntoView({ behavior: 'smooth' });
+            }
+            setActiveNav('tools');
+        }
+
+        function setActiveNav(page) {
+            document.querySelectorAll('.nav a').forEach(a => {
+                a.classList.remove('active');
+                if (a.dataset.page === page) {
+                    a.classList.add('active');
+                }
+            });
+        }
+
+        showHome();
+    </script>
+</body>
+</html>
